@@ -1,4 +1,4 @@
-angular.module('turnBasedGame')
+angular.module('game')
 	.controller('gameCtrl', function ($scope, $rootScope, $timeout) {
 		
 		$scope.enemies = [];

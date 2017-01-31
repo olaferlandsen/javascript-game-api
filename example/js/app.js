@@ -1,4 +1,4 @@
-angular.module('turnBasedGame', [
+angular.module('game', [
 	
 ]).run(function() {
 	
