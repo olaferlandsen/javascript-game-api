@@ -793,25 +793,21 @@ class Person {
 	        let attack = Utils.random(this.getAttack(), 20);
 	        let finalAttack = attack + (attack * critical);
 
-	        if (finalAttack > 0) {
-		        fn.onHit.call(enemy, finalAttack);
-	        } else {
-		        fn.onMiss.call(enemy, finalAttack);
-	        }
-
-
 	        let defense = enemy.getLife() * (Utils.random(enemy.getDefense()) * 0.01);
 	        let finalDamage = Math.max(0, attack - defense);
-
-	        if (defense > 0) {
-		        fn.onBlock.call(enemy, defense, finalDamage)
-	        }
-
 	        enemy.subLife(finalDamage);
-
 
 	        if (enemy.isDead()) {
 		        fn.onKill.call(enemy);
+	        }
+	        else if (defense > finalAttack) {
+		        fn.onBlock.call(enemy, defense, finalDamage)
+	        }
+	        else if (finalAttack > 0) {
+		        fn.onHit.call(enemy, finalAttack);
+	        }
+	        else {
+		        fn.onMiss.call(enemy, finalAttack);
 	        }
 	        //
 	        return {

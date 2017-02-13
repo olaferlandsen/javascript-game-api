@@ -1,22 +1,26 @@
 
 
 angular.module('game')
-	.controller('gameCtrl', function ($scope) {
-		
+	.controller('gameCtrl', function ($scope, $interval, $animate) {
+		$scope.elementKill = angular.element(document.querySelector('.message.kill'));
+		$scope.elementHit = angular.element(document.querySelector('.message.hit'));
+		$scope.elementMiss = angular.element(document.querySelector('.message.miss'));
+		$scope.elementBlocked = angular.element(document.querySelector('.message.blocked'));
+		$scope.elementDead = angular.element(document.querySelector('.message.dead'));
 		$scope.items = [
 			{
-				name    : 'Espada de Hierro',
-				type    :   'sword',
+				name    : 'Sword',
+				type    :   'Sword',
 				weight  : 10,
 				size    : 3,
 				price   : 400,
 				attack  : 50,
-				critical:10,
+				critical: 20,
 				defense : 0
 			},
 			{
-				name    : 'Armadura',
-				type    :   'sword',
+				name    : 'Armor',
+				type    :   'Armor',
 				weight  : 10,
 				size    : 3,
 				price   : 2500,
@@ -24,8 +28,8 @@ angular.module('game')
 				defense : 200
 			},
 			{
-				name    : 'Guantes',
-				type    :   'sword',
+				name    : 'Helmet',
+				type    :   'Helmet',
 				weight  : 10,
 				size    : 3,
 				price   : 300,
@@ -33,16 +37,26 @@ angular.module('game')
 				defense : 20
 			},
 			{
-				name    : 'Botas',
-				type    :   'sword',
+				name    : 'Boots',
+				type    :   'Boots',
 				weight  : 10,
-				size    : 3,
+				size    : 2,
 				price   : 300,
 				attack  : 0,
-				defense : 55.7
+				defense : 12
 			},
 			{
-				name    : 'Escudo de Acero',
+				name    : 'Gloves',
+				type    :   'Gloves',
+				weight  : 10,
+				size    : 1,
+				price   : 120,
+				attack  : 0,
+				defense : 7.5,
+				critical:10,
+			},
+			{
+				name    : 'Shield',
 				weight  : 30,
 				size    : 4,
 				price   : 700,
@@ -163,30 +177,41 @@ angular.module('game')
 			critical: (Math.floor( Math.random() * 30 ) + 1)
 			
 		});
-		
 		// Attack
 		$scope.attackTo = function (enemy) {
 			$scope.me.attackTo(enemy, {
 				combo   :   (Math.floor(Math.random() * 1000)+1) % 2 == 0,
 				comboX  :   Math.floor(Math.random() * 5 ) + 1,
-				
-				onKill:function () {
+				onKill  :   function () {
 					$scope.me.statistics.kills++;
-					
-					console.log('has matado al enemigo');
 					$scope.me.addExperience(1000);
-					$scope.me.inventory.addGold(enemy.inventory.getGold())
+					$scope.me.inventory.addGold(enemy.inventory.getGold());
+					
+					$scope.message = 'KILL!';
+					
+					
+					$animate.addClass($scope.elementKill, 'fade').then(function () {
+						$animate.removeClass($scope.elementKill, 'fade')
+					});
 				},
-				onHit: function (points) {
-					console.log('atacaste al enemigo ' + points);
+				onHit   :   function (points) {
+					$scope.message = 'HIT ' + points + ' POINTS!';
+					$animate.addClass($scope.elementHit, 'fade').then(function () {
+						$animate.removeClass($scope.elementHit, 'fade')
+					});
 					$scope.me.addExperience(10)
 				},
-				onMiss: function () {
-					console.log('fallaste...');
+				onMiss  :   function () {
+					$scope.message = 'MISS!';
+					$animate.addClass($scope.elementMiss, 'fade').then(function () {
+						$animate.removeClass($scope.elementMiss, 'fade')
+					});
 				},
-				onBlock: function (blockPoits, finalAttack) {
-					console.log('el enemigo bloqueo ' + blockPoits +'/' +finalAttack);
-					$scope.me.addExperience(5)
+				onBlock :   function (blockPoits, finalAttack) {
+					$scope.me.addExperience(5);
+					$animate.addClass($scope.elementBlocked, 'fade').then(function () {
+						$animate.removeClass($scope.elementBlocked, 'fade')
+					});
 				}
 			}).then(function () {
 				console.log('this', this);
@@ -204,10 +229,11 @@ angular.module('game')
 				$scope.me.addLife(100);
 			}
 			if ($scope.me.isDead()) {
-				alert('You are dead');
+				$animate.addClass($scope.elementDead, 'fade').then(function () {
+					$animate.removeClass($scope.elementDead, 'fade')
+				});
 			}
 		};
-		
 		//
 		$scope.buy = function (index) {
 			var item = $scope.items[index];

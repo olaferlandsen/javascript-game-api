@@ -768,20 +768,20 @@ var Person = (function () {
             var critical = Utils.random(this.getCritical()) * 0.01;
             var attack = Utils.random(this.getAttack(), 20);
             var finalAttack = attack + (attack * critical);
-            if (finalAttack > 0) {
+            var defense = enemy.getLife() * (Utils.random(enemy.getDefense()) * 0.01);
+            var finalDamage = Math.max(0, attack - defense);
+            enemy.subLife(finalDamage);
+            if (enemy.isDead()) {
+                fn.onKill.call(enemy);
+            }
+            else if (defense > finalAttack) {
+                fn.onBlock.call(enemy, defense, finalDamage);
+            }
+            else if (finalAttack > 0) {
                 fn.onHit.call(enemy, finalAttack);
             }
             else {
                 fn.onMiss.call(enemy, finalAttack);
-            }
-            var defense = enemy.getLife() * (Utils.random(enemy.getDefense()) * 0.01);
-            var finalDamage = Math.max(0, attack - defense);
-            if (defense > 0) {
-                fn.onBlock.call(enemy, defense, finalDamage);
-            }
-            enemy.subLife(finalDamage);
-            if (enemy.isDead()) {
-                fn.onKill.call(enemy);
             }
             //
             return {
