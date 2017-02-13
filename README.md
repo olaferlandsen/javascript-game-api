@@ -1,39 +1,33 @@
 ### Features
-* Life
-* Attack
-* Defense
-* Critical
-* Speed
-* Receive Attack
-* Classes
-* Inventory with Item
-* Item's
-* Gender
-* Names, and any more!
+* Multiple Person
+  * Attack, Defense, Critical, Life, Gold, and many more...
+* Inventory
+* Buy and Sell
+* Compatible with jQuery, Angular, React and Cordova.
 
 ### Documentation
-You can learn more in `docs/`
+This API is full documented and you can see it on folder `docs/`
 
 ### Example
-You can download it and open `example/index.html` in you browser.
+[View DEMO](https://htmlpreview.github.io/?https://github.com/olaferlandsen/javascript-game-api/blob/master/example/index.html)
+
+### What can you create?
+You can create games like Starcraft™, Diablo II™, Age of Empires™, and many more...
 
 ### Browser Support
-* Google Chrome
-  * OSX
-  * Windows
-  * Linux
-  * Android
-  * iOS
-* Internet Explorer 8+
-* Microsoft Edge
-* Mozilla Firefox
-  * Android
-  * iOS
-  * Windows
-  * OSX
-  * Linux
-* Safari
-  * Windows
-  * OSX
-  * iOS
-* Crosswalk (cordova/phonegap/ionic)
+* Android Browser 2.1+
+* Blackberry Browser 7+
+* IE Mobile 10+
+* Opera Mobile 10+
+* Chrome 4+
+* Firefox 2+
+* Internet Explorer 5.5+
+* Opera 9+
+* Safari 3.1+
+* Chrome for Android 53+
+* Edge 12+
+* Firefox for Android 49+
+* Opera Mini
+* Samsung Internet 4+
+* UC Browser for Android 11+
+* **Crosswalk for Cordova/PhoneGap**

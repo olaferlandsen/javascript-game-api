@@ -1,33 +1,200 @@
 /**
- * Get random item from array
- *
- * @return {*}
+ * Polyfill
  * */
-Array.prototype.random = function () {
-    var values = this;
-    return values[Math.floor(Math.random() * values.length)];
-};
-/**
- * Check if a number(float or integer) value
- * @param {*} value
- * @return boolean
- * */
-function isNumber(value) {
-    return !isNaN(parseFloat(value)) && isFinite(value);
+if (!Array.isArray) {
+    Array.isArray = function (arg) {
+        return Object.prototype.toString.call(arg) === '[object Array]';
+    };
+}
+if (!Object.keys) {
+    Object.keys = (function () {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty, hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'), dontEnums = [
+            'toString',
+            'toLocaleString',
+            'valueOf',
+            'hasOwnProperty',
+            'isPrototypeOf',
+            'propertyIsEnumerable',
+            'constructor'
+        ], dontEnumsLength = dontEnums.length;
+        return function (obj) {
+            if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+                throw new TypeError('Object.keys called on non-object');
+            }
+            var result = [], prop, i;
+            for (prop in obj) {
+                if (hasOwnProperty.call(obj, prop)) {
+                    result.push(prop);
+                }
+            }
+            if (hasDontEnumBug) {
+                for (i = 0; i < dontEnumsLength; i++) {
+                    if (hasOwnProperty.call(obj, dontEnums[i])) {
+                        result.push(dontEnums[i]);
+                    }
+                }
+            }
+            return result;
+        };
+    }());
 }
 /**
- *
- * @param {int} min
- * @return number
+ * @constructor
  * */
-Number.prototype.random = function (min) {
-    var max = this;
-    if (!isNumber(max))
-        max = 1;
-    if (!isNumber(min))
-        min = 0;
-    return Math.floor(Math.random() * max) + min;
-};
+var Utils = (function () {
+    function Utils() {
+    }
+    Utils.getType = function (value) {
+        return typeof value;
+    };
+    Utils.isFunction = function (value) {
+        return typeof value === 'function';
+    };
+    /**
+     * Check if a Object value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isObject = function (value) {
+        return null != value && toString.call(value) === '[object Object]';
+    };
+    /**
+     * Check if a Array value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isArray = function (value) {
+        if (Array.isArray)
+            return Array.isArray(value);
+        return value instanceof Array;
+    };
+    /**
+     * Check if a Empty value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isEmpty = function (value) {
+        if (Utils.isNull(value) || Utils.isUndefined(value))
+            return true;
+        else if (Utils.isArray(value) || Utils.isString(value))
+            return value.length === 0;
+        else if (Utils.isObject(value))
+            return Object.keys(value).length === 0;
+        else if (Utils.isNumber(value))
+            return value === 0;
+        return false;
+    };
+    Utils.isEmptyObject = function (value) {
+        return Utils.isObject(value) && Object.keys(value).length === 0 || value === null;
+    };
+    /**
+     * Check if a String value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isString = function (value) {
+        return typeof value === 'string';
+    };
+    /**
+     * Check if a Integer value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isInteger = function (value) {
+        return typeof value === 'number' && Number(value) === value && value % 1 === 0;
+    };
+    /**
+     * Check if a Float value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isFloat = function (value) {
+        return typeof value === 'number' && Number(value) === value && value % 1 !== 0;
+    };
+    /**
+     * Check if a Integer or Float value
+     * @param {*} value
+     * @return boolean
+     * */
+    Utils.isNumber = function (value) {
+        return Utils.isInteger(value) || Utils.isFloat(value);
+    };
+    /**
+     *
+     * */
+    Utils.isTrue = function (value) {
+        return value === true || value === 1;
+    };
+    /**
+     *
+     * */
+    Utils.isFalse = function (value) {
+        return value === false || value === 0;
+    };
+    Utils.isRegExp = function (value) {
+        return value instanceof RegExp;
+    };
+    Utils.isDate = function (value) {
+        return value instanceof Date;
+    };
+    Utils.isNull = function (value) {
+        return value === null;
+    };
+    Utils.isUndefined = function (value) {
+        return typeof value === 'undefined';
+    };
+    Utils.forEach = function (value, callback) {
+        if (Utils.isArray(value)) {
+            for (var index = 0; index < value.length; index++) {
+                var item = value[index];
+                callback.call({}, item, index);
+            }
+        }
+        else if (Utils.isObject(value)) {
+            for (var property in value) {
+                if (value.hasOwnProperty(property)) {
+                    callback.call({}, value[property], property);
+                }
+            }
+        }
+    };
+    Utils.random = function (value, max) {
+        if (Utils.isArray(value)) {
+            return value[Math.floor(Math.random() * value.length)];
+        }
+        else if (Utils.isNumber(value)) {
+            if (!Utils.isNumber(max)) {
+                max = value + Math.floor(Math.random() * value);
+            }
+            return Math.floor(Math.random() * max) + value;
+        }
+    };
+    Utils.hasOwnProperty = function (properties, object) {
+        if (!this.isObject(object))
+            throw new Error('Utils:hasOwnProperty: only accept object');
+        if (this.isArray(properties)) {
+            for (var _i = 0, properties_1 = properties; _i < properties_1.length; _i++) {
+                var property = properties_1[_i];
+                if (!object.hasOwnProperty(property))
+                    return false;
+            }
+            return true;
+        }
+        else if (Utils.isString(properties)) {
+            return object.hasOwnProperty(properties);
+        }
+    };
+    return Utils;
+}());
+/**
+ * @constructor
+ * */
+var Messages = (function () {
+    function Messages() {
+    }
+    return Messages;
+}());
 /**
  * Class to create Items
  * @constructor
@@ -39,6 +206,16 @@ var Item = (function () {
         this.attack = options.attack;
         this.defense = options.defense;
     }
+    /**
+     * Get item weight
+     * @return number
+     * */
+    Item.prototype.getWeight = function () {
+        return this.weight;
+    };
+    Item.prototype.getSize = function () {
+        return this.size;
+    };
     return Item;
 }());
 /**
@@ -47,11 +224,134 @@ var Item = (function () {
  * */
 var Inventory = (function () {
     function Inventory() {
+        this.gold = 0;
+        this.items = [];
     }
+    /**
+     *
+     * */
+    Inventory.prototype.getGold = function () {
+        return this.gold;
+    };
+    Inventory.prototype.setGold = function (value) {
+        this.gold = Math.max(0, Math.abs(value));
+        if (this.gold < 0)
+            this.gold = 0;
+        return true;
+    };
+    Inventory.prototype.addGold = function (value) {
+        this.gold += Math.max(0, Math.abs(value));
+        if (this.gold < 0)
+            this.gold = 0;
+        return true;
+    };
+    Inventory.prototype.subGold = function (value) {
+        this.gold -= Math.max(0, Math.abs(value));
+        if (this.gold < 0)
+            this.gold = 0;
+        return true;
+    };
+    /**
+     * Apply over PersonObject
+     * @param {*} player
+     * */
+    Inventory.prototype.apply = function (player) {
+        if (Person.isValid(player)) {
+            console.log('this.items:', this.items);
+            Utils.forEach(this.items, function (item, index) {
+                if (Utils.isNumber(item.life)) {
+                    player.addLife(item.life);
+                }
+                if (Utils.isNumber(item.defense)) {
+                    player.addDefense(item.defense);
+                }
+                if (Utils.isNumber(item.attack)) {
+                    player.addAttack(item.attack);
+                }
+                if (Utils.isNumber(item.critical)) {
+                    player.addCritical(item.critical);
+                }
+            });
+            return true;
+        }
+        return false;
+    };
+    /**
+     * @param {*} item
+     * */
+    Inventory.prototype.isItem = function (item) {
+        if (Utils.isNull(item) || Utils.isUndefined(item)) {
+            console.error('No es un objeto');
+            return false;
+        }
+        if (!Utils.isObject(item) || Utils.isEmptyObject(item)) {
+            console.error('Objecto vacio');
+            return false;
+        }
+        if (!Utils.hasOwnProperty(['name', 'weight', 'size', 'price'], item)) {
+            console.error('No tiene las propiedades');
+            return false;
+        }
+        return true;
+    };
+    Inventory.prototype.isSeteable = function (item) {
+        if (!this.isItem(item)) {
+            console.error('No es un item valido');
+            return false;
+        }
+        var carry = this.getWeightCarry() + item.weight;
+        if (carry > this.getMaxWeight()) {
+            console.error('El peso es superir al maximo');
+            return false;
+        }
+        var size = this.getSizeCarry() + item.size;
+        if (size > this.getMaxSize()) {
+            console.error('El tamaño es superior al permitido');
+            return false;
+        }
+        return true;
+    };
+    Inventory.prototype.all = function () {
+        return this.items;
+    };
+    /**
+     * Get current weight carry on this inventory
+     * */
+    Inventory.prototype.getWeightCarry = function () {
+        return 0;
+    };
+    Inventory.prototype.getMaxSize = function () {
+        return this.maxSize;
+    };
+    Inventory.prototype.getSizeCarry = function () {
+        return 0;
+    };
+    Inventory.prototype.getMaxWeight = function () {
+        return this.maxWeight;
+    };
+    Inventory.prototype.getItem = function () { };
     Inventory.prototype.getItems = function () { };
-    Inventory.prototype.removeItem = function () { };
-    Inventory.prototype.sellItem = function () { };
-    Inventory.prototype.buyItem = function () { };
+    /**
+     *
+     * */
+    Inventory.prototype.setItem = function (item) {
+        if (!this.isSeteable(item))
+            return false;
+        console.info('el item se añadio');
+        this.items.push(item);
+        return true;
+    };
+    /**
+     *
+     * */
+    Inventory.prototype.setItemArray = function (items) {
+        for (var item in items) {
+            if (!this.setItem(item)) {
+                return false;
+            }
+        }
+        return true;
+    };
     return Inventory;
 }());
 /**
@@ -60,10 +360,16 @@ var Inventory = (function () {
  * */
 var Person = (function () {
     function Person(info) {
+        this.statistics = {
+            buys: 0,
+            kills: 0
+        };
         this.life = {
             current: 0,
             max: 0
         };
+        // set person inventory
+        this.inventory = new Inventory();
         if (info.hasOwnProperty('name'))
             this.setName(info.name);
         if (info.hasOwnProperty('gender'))
@@ -78,14 +384,22 @@ var Person = (function () {
         this.setCritical(info.critical || 0);
         this.setAmmunition(info.ammunition || Infinity);
         this.setExperience(info.experience || 0);
-        this.setGold(info.gold || 0);
+        this.inventory.setGold(info.gold || 0);
         this.setSpeed(info.speed || 0);
         this.setLevel(Math.max(1, info.level) || 1); // min level is 1
         if (info.hasOwnProperty('image'))
             this.setImage(info.image);
         if (info.hasOwnProperty('items'))
-            this.setItems(info.items);
+            this.setItem(info.items);
     }
+    /**
+     *
+     * */
+    Person.isValid = function (person) {
+        return Utils.isObject(person) && Utils.hasOwnProperty([
+            'name', 'level', 'life', 'defense', 'attack', 'inventory'
+        ], person);
+    };
     /**
      * Get full information about this Person
      *
@@ -93,6 +407,7 @@ var Person = (function () {
      * */
     Person.prototype.getInfo = function () {
         var info = {
+            statistics: this.statistics,
             name: this.name,
             life: this.life,
             defense: this.defense,
@@ -144,7 +459,7 @@ var Person = (function () {
      * @return number
      * */
     Person.prototype.getLifePercentage = function () {
-        return this.life.max * this.life.current / 100;
+        return this.life.current * 100 / this.life.max;
     };
     /**
      * Get defense of current person
@@ -163,7 +478,9 @@ var Person = (function () {
     /**
      * @return number
      * */
-    Person.prototype.getGold = function () { return this.gold; };
+    Person.prototype.getGold = function () {
+        return this.inventory.getGold();
+    };
     /**
      * @return array
      * */
@@ -307,7 +624,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setLife = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.life.current = Math.max(value, 0);
     };
@@ -315,7 +632,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setMaxLife = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.life.max = Math.max(value, 0);
     };
@@ -323,7 +640,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setDefense = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.defense = value;
     };
@@ -331,7 +648,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setAttack = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.attack = value;
     };
@@ -339,7 +656,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setCritical = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.critical = value;
     };
@@ -347,12 +664,12 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setSpeed = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.speed = value;
     };
     Person.prototype.setExperience = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.exp = value;
     };
@@ -360,7 +677,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setGold = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.gold = value;
     };
@@ -368,7 +685,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setAmmunition = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.ammunition = value;
     };
@@ -376,7 +693,7 @@ var Person = (function () {
      * @return void
      * */
     Person.prototype.setLevel = function (value) {
-        if (!isNumber(value) || !value)
+        if (!Utils.isNumber(value) || !value)
             value = 0;
         this.level = Math.max(1, value);
     };
@@ -405,45 +722,76 @@ var Person = (function () {
     /**
      * @return void
      * */
-    Person.prototype.setItems = function (value) { this.items = value; };
-    /**
-     * @param {number} attack - Final attack to receive it.
-     * */
-    Person.prototype.receiveAttack = function (attack) {
-        var iam = this;
-        var defense = this.getLife() * (this.getDefense().random() * 0.01);
-        var finalDamage = Math.max(0, attack - defense);
-        console.log(iam.getName() + ' has received an attack of ' + attack + ' points but block with ' + defense + ' points. The final damage is ' + finalDamage + ' points.');
-        this.subLife(finalDamage);
+    Person.prototype.setItem = function (item) {
+        this.inventory.setItem(item);
+        this.inventory.apply(this);
     };
     /**
      * @param {object} enemy - Enemy {Person} object
+     * @param {object} actions
      * @return number
      * */
-    Person.prototype.attackTo = function (enemy) {
+    Person.prototype.attackTo = function (enemy, actions) {
+        var _this = this;
+        var fn = {
+            onKill: function () { },
+            onHit: function () { },
+            onBlock: function () { },
+            onMiss: function () { },
+            onError: function () { }
+        };
+        if (!Utils.isObject(actions))
+            actions = {};
+        if (!Utils.isEmptyObject(actions)) {
+            //if (Utils.isNumber(actions.combo))
+            if (Utils.isFunction(actions.onKill))
+                fn.onKill = actions.onKill;
+            if (Utils.isFunction(actions.onHit))
+                fn.onHit = actions.onHit;
+            if (Utils.isFunction(actions.onMiss))
+                fn.onMiss = actions.onMiss;
+            if (Utils.isFunction(actions.onBlock))
+                fn.onBlock = actions.onBlock;
+            if (Utils.isFunction(actions.onError))
+                fn.onError = actions.onError;
+        }
         var iam = this;
-        console.info(iam.getName() + ' is attacking ' + enemy.getName());
         if (iam.isDead()) {
-            console.error('You can not attack because you are dead.');
+            fn.onError.call(iam, 'You can not attack because you are dead.');
             return false;
         }
         else if (enemy.isDead()) {
-            console.log('You can not attack to this opponent because he is dead.');
+            fn.onError.call(enemy, 'You can not attack because the enemy is dead');
             return false;
         }
-        this.addExperience(3);
-        this.subAmmunition(1);
-        var critical = this.getCritical().random() * 0.01;
-        var attack = this.getAttack().random(20);
-        var finalAttack = attack + (attack * critical);
-        console.log(iam.getName() + ' has made an attack of ' + finalAttack + ' points to ' + enemy.getName());
-        enemy.receiveAttack(finalAttack);
-        if (enemy.isDead()) {
-            this.addExperience(1000);
-            this.addGold(100 + enemy.getGold());
-            enemy.setGold(0);
+        else {
+            var critical = Utils.random(this.getCritical()) * 0.01;
+            var attack = Utils.random(this.getAttack(), 20);
+            var finalAttack = attack + (attack * critical);
+            if (finalAttack > 0) {
+                fn.onHit.call(enemy, finalAttack);
+            }
+            else {
+                fn.onMiss.call(enemy, finalAttack);
+            }
+            var defense = enemy.getLife() * (Utils.random(enemy.getDefense()) * 0.01);
+            var finalDamage = Math.max(0, attack - defense);
+            if (defense > 0) {
+                fn.onBlock.call(enemy, defense, finalDamage);
+            }
+            enemy.subLife(finalDamage);
+            if (enemy.isDead()) {
+                fn.onKill.call(enemy);
+            }
+            //
+            return {
+                then: function (callback) {
+                    if (Utils.isFunction(callback)) {
+                        callback.call(_this);
+                    }
+                }
+            };
         }
-        return enemy.getInfo().life;
     };
     return Person;
 }());

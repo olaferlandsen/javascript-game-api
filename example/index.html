@@ -11,6 +11,26 @@
 </head>
     <body ng-app="game">
         <div class="container" ng-controller="gameCtrl">
+	        <div class="col-md-4">
+		        <div class="panel">
+			        <div class="panel-heading">
+				        <h3>Market</h3>
+			        </div>
+			        <div class="panel-body">
+				        <table class="table-bordered table">
+					        <tbody>
+
+					            <tr ng-repeat="item in items">
+						            <td>{{ item.name }}</td>
+						            <td>${{ item.price | number }}</td>
+						            <td><a ng-click="buy($index)" class="btn btn-success">Comprar</a></td>
+					            </tr>
+
+					        </tbody>
+				        </table>
+			        </div>
+		        </div>
+	        </div>
             <div class="col-md-4">
                 <div class="panel" ng-class="{ 'panel-danger' : me.isDead() }">
                     <div class="panel-heading"><h3>{{ me.getName() }}</h3></div>
@@ -27,32 +47,52 @@
                                 <span class="sr-only">{{me.getLifePercentage()}}% Complete</span>
                             </div>
                         </div>
-                        <table class="table table-bordered">
-                            <thead>
+	                    <table class="table table-bordered">
+		                    <tbody>
+			                    <tr>
+				                    <td><strong>Life</strong></td>
+				                    <td>{{ me.getLife() | number:0 }} / {{ me.getLifePercentage() | number : 0 }}%</td>
 
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="2"><strong>Life</strong></td>
-                                    <td colspan="2">{{ me.getLife() }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Level</strong></td>
-                                    <td>{{ me.getLevel() }}</td>
+				                    <td><strong>Asesinatos</strong></td>
+				                    <td>{{ me.statistics.kills | number :0 }}</td>
+			                    </tr>
+			                    <tr>
+				                    <td><strong>Level</strong></td>
+				                    <td>{{ me.getLevel() }}</td>
 
-                                    <td><strong>Exp.</strong></td>
-                                    <td>{{ me.getExperience() | number }}</td>
-                                </tr>
+				                    <td><strong>Exp.</strong></td>
+				                    <td>{{ me.getExperience() | number }}</td>
+			                    </tr>
+			                    <tr>
+				                    <td><strong>Attack</strong></td>
+				                    <td>{{ me.getAttack() }}</td>
 
-                                <tr>
-                                    <td><strong>Attack</strong></td>
-                                    <td>{{ me.getAttack() }}</td>
+				                    <td><strong>Defense</strong></td>
+				                    <td>{{ me.getDefense() | number }}</td>
+			                    </tr>
+			                    <tr>
+				                    <td><strong>Gold</strong></td>
+				                    <td>{{ me.getGold() }}</td>
+			                    </tr>
+		                    </tbody>
+	                    </table>
 
-                                    <td><strong>Defense</strong></td>
-                                    <td>{{ me.getDefense() | number }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+	                    <table class="table table-bordered">
+		                    <thead>
+		                        <tr>
+			                        <th colspan="5">Inventario</th>
+		                        </tr>
+		                    </thead>
+		                    <tbody>
+			                    <tr ng-repeat="item in me.inventory.all()">
+				                    <td><strong>{{item.name}}</strong></td>
+				                    <td>{{ item.attack | number}}</td>
+				                    <td>{{ item.defense | number }}</td>
+				                    <td>{{ (item.critical|| 0) | number}}</td>
+				                    <td><a ng-click="" class="btn btn-warning">Tirar</a></td>
+			                    </tr>
+		                    </tbody>
+	                    </table>
                     </div>
                 </div>
             </div>
