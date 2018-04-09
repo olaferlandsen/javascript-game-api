@@ -1,0 +1,17 @@
+{
+	"compilerOptions":{
+		"module": "system",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+		"noImplicitThis": true,
+        "sourceRoot": "./dist/",
+        "rootDir": "./dist/",
+        "outFile": "./build/build.js"
+    },
+	"compileOnSave": false,
+	"files":[
+        "dist/index.ts"
+	]
+}
