@@ -2,7 +2,7 @@ var Game;
 (function (Game) {
     var Helpers;
     (function (Helpers) {
-        var Utils = (function () {
+        var Utils = /** @class */ (function () {
             function Utils() {
             }
             Utils.getType = function (value) {
@@ -128,13 +128,17 @@ var Game;
 (function (Game) {
     var Inventory;
     (function (Inventory) {
-        var Item = (function () {
+        var Item = /** @class */ (function () {
             function Item(options) {
                 this.name = options.name;
                 this.value = options.value;
                 this.attack = options.attack;
                 this.defense = options.defense;
             }
+            /**
+             * Get item weight
+             * @return number
+             * */
             Item.prototype.getWeight = function () {
                 return this.weight;
             };
@@ -146,11 +150,17 @@ var Game;
         Inventory.Item = Item;
     })(Inventory = Game.Inventory || (Game.Inventory = {}));
 })(Game || (Game = {}));
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='../Character/Character.ts'/>
+///<reference path='../Inventory/Item.ts'/>
 var Game;
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='../Character/Character.ts'/>
+///<reference path='../Inventory/Item.ts'/>
 (function (Game) {
     var Inventory;
     (function (Inventory_1) {
-        var Inventory = (function () {
+        var Inventory = /** @class */ (function () {
             function Inventory() {
                 this.gold = 0;
                 this.items = [];
@@ -197,6 +207,9 @@ var Game;
                 }
                 return false;
             };
+            /**
+             * @param {*} item
+             * */
             Inventory.prototype.isItem = function (item) {
                 if (Game.Helpers.Utils.isNull(item) || Game.Helpers.Utils.isUndefined(item)) {
                     console.error('No es un objeto');
@@ -232,6 +245,9 @@ var Game;
             Inventory.prototype.all = function () {
                 return this.items;
             };
+            /**
+             * Get current weight carry on this inventory
+             * */
             Inventory.prototype.getWeightCarry = function () {
                 return 0;
             };
@@ -246,6 +262,9 @@ var Game;
             };
             Inventory.prototype.getItem = function () { };
             Inventory.prototype.getItems = function () { };
+            /**
+             *
+             * */
             Inventory.prototype.setItem = function (item) {
                 if (!this.isSeteable(item))
                     return false;
@@ -253,6 +272,9 @@ var Game;
                 this.items.push(item);
                 return true;
             };
+            /**
+             *
+             * */
             Inventory.prototype.setItemArray = function (items) {
                 for (var item in items) {
                     if (!this.setItem(item)) {
@@ -270,7 +292,7 @@ var Game;
 (function (Game) {
     var Characters;
     (function (Characters) {
-        var Wound = (function () {
+        var Wound = /** @class */ (function () {
             function Wound() {
             }
             return Wound;
@@ -282,7 +304,7 @@ var Game;
 (function (Game) {
     var Character;
     (function (Character) {
-        var Karma = (function () {
+        var Karma = /** @class */ (function () {
             function Karma(startWith) {
                 if (typeof startWith === "number")
                     this._karma = startWith;
@@ -359,7 +381,7 @@ var Game;
 (function (Game) {
     var Diseases;
     (function (Diseases_1) {
-        var Diseases = (function () {
+        var Diseases = /** @class */ (function () {
             function Diseases() {
             }
             Diseases.prototype.create = function () { };
@@ -371,12 +393,23 @@ var Game;
         Diseases_1.Diseases = Diseases;
     })(Diseases = Game.Diseases || (Game.Diseases = {}));
 })(Game || (Game = {}));
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='../Inventory/Inventory.ts'/>
+///<reference path='Wound.ts'/>
+///<reference path='Karma.ts'/>
+///<reference path='../Diseases/Diseases.ts'/>
 var Game;
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='../Inventory/Inventory.ts'/>
+///<reference path='Wound.ts'/>
+///<reference path='Karma.ts'/>
+///<reference path='../Diseases/Diseases.ts'/>
 (function (Game) {
     var Character;
     (function (Character_1) {
-        var Character = (function () {
+        var Character = /** @class */ (function () {
             function Character(info) {
+                //this.karma = new Karma();
                 this.statistics = {
                     buys: 0,
                     kills: 0
@@ -385,6 +418,7 @@ var Game;
                     current: 0,
                     max: 0
                 };
+                // set person inventory
                 this.inventory = new Game.Inventory.Inventory();
                 if (info.hasOwnProperty('name'))
                     this.setName(info.name);
@@ -392,6 +426,7 @@ var Game;
                     this.setGender(info.gender);
                 if (info.hasOwnProperty('_class'))
                     this.setClass(info._class);
+                //this.setLife(info.life || 0);
                 this.setLife(info.life.max || 0);
                 this.setMaxLife(info.life.current || 0);
                 this.setAttack(info.attack || 0);
@@ -401,17 +436,25 @@ var Game;
                 this.setExperience(info.experience || 0);
                 this.inventory.setGold(info.gold || 0);
                 this.setSpeed(info.speed || 0);
-                this.setLevel(Math.max(1, info.level) || 1);
+                this.setLevel(Math.max(1, info.level) || 1); // min level is 1
                 if (info.hasOwnProperty('image'))
                     this.setImage(info.image);
                 if (info.hasOwnProperty('items'))
                     this.setItem(info.items);
             }
+            /**
+             *
+             * */
             Character.isValid = function (person) {
                 return Game.Helpers.Utils.isObject(person) && Game.Helpers.Utils.hasOwnProperty([
                     'name', 'level', 'life', 'defense', 'attack', 'inventory'
                 ], person);
             };
+            /**
+             * Get full information about this Person
+             *
+             * @return {object}
+             * */
             Character.prototype.getInfo = function () {
                 var info = {
                     statistics: this.statistics,
@@ -428,27 +471,89 @@ var Game;
                     info._class = this._class;
                 return info;
             };
+            /**
+             * Get name of current person
+             *
+             * @return {string}
+             * */
             Character.prototype.getName = function () { return this.name; };
+            /**
+             * Get gender of current person
+             *
+             * @return string
+             * */
             Character.prototype.getGender = function () { return this.gender; };
+            /**
+             * Get class of current person
+             *
+             * @return string
+             * */
             Character.prototype.getClass = function () { return this._class; };
+            /**
+             * Get image of current person
+             *
+             * @return string
+             * */
             Character.prototype.getImage = function () { return this.image; };
+            /**
+             * Get life of this Person
+             *
+             * @return number
+             * */
             Character.prototype.getLife = function () {
                 return this.life.current;
             };
+            /**
+             * Get life percentage of current person
+             *
+             * @return number
+             * */
             Character.prototype.getLifePercentage = function () {
                 return this.life.current * 100 / this.life.max;
             };
+            /**
+             * Get defense of current person
+             *
+             * @return number
+             * */
             Character.prototype.getDefense = function () { return this.defense; };
+            /**
+             * @return number
+             * */
             Character.prototype.getAttack = function () { return this.attack; };
+            /**
+             * @return number
+             * */
             Character.prototype.getExperience = function () { return this.exp; };
+            /**
+             * @return number
+             * */
             Character.prototype.getGold = function () {
                 return this.inventory.getGold();
             };
+            /**
+             * @return array
+             * */
             Character.prototype.getItems = function () { return this.items; };
+            /**
+             * @return number
+             * */
             Character.prototype.getCritical = function () { return this.critical; };
+            /**
+             * @return number
+             * */
             Character.prototype.getSpeed = function () { return this.speed; };
+            /**
+             * @return number
+             * */
             Character.prototype.getAmmunition = function () { return this.ammunition; };
+            /**
+             * @return number
+             * */
             Character.prototype.getLevel = function () { return this.level; };
+            /**
+             * @return void
+             * */
             Character.prototype.addLife = function (value) {
                 value = Math.abs(value);
                 var max = value + this.life.current;
@@ -459,74 +564,155 @@ var Game;
                     this.life.current += value;
                 }
             };
+            /**
+             * @return void
+             * */
             Character.prototype.addMaxLife = function (value) {
                 this.life.max += Math.max(0, Math.abs(value));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.addDefense = function (value) { this.defense += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addAttack = function (value) { this.attack += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addCritical = function (value) { this.critical += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addSpeed = function (value) { this.speed += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addExperience = function (value) { this.exp += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addGold = function (value) { this.gold += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addAmmunition = function (value) { this.ammunition += Math.max(0, Math.abs(value)); };
+            /**
+             * @return void
+             * */
             Character.prototype.addLevel = function (value) {
                 this.setLevel(this.getLevel() + Math.abs(value));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subLife = function (value) {
                 return this.life.current = Math.max(0, (this.life.current - Math.max(0, Math.abs(value))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subMaxLife = function (value) {
                 return this.life.max(Math.max(0, (this.life.max - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subDefense = function (value) {
                 return this.setDefense(Math.max(0, (this.defense - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subAttack = function (value) {
                 return this.setAttack(Math.max(0, (this.attack - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subCritical = function (value) {
                 return this.setCritical(Math.max(0, (this.critical - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subSpeed = function (value) {
                 return this.setSpeed(Math.max(0, (this.speed - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subAmmunition = function (value) {
                 return this.setAmmunition(Math.max(0, (this.ammunition - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subExperience = function (value) {
                 return this.setExperience(Math.max(0, (this.exp - Math.max(0, Math.abs(value)))));
             };
+            /**
+             * @return void
+             * */
             Character.prototype.subLevel = function (value) {
                 return this.setLevel(this.level - Math.max(0, Math.abs(value)));
             };
+            /**
+             * @return boolean
+             * */
             Character.prototype.isAlive = function () { return this.getLife() > 0; };
+            /**
+             * @return boolean
+             * */
             Character.prototype.isDead = function () { return this.getLife() === 0; };
+            /**
+             * @return boolean
+             * */
             Character.prototype.kill = function () { this.setLife(0); return true; };
+            /**
+             * @return void
+             * */
             Character.prototype.setLife = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.life.current = Math.max(value, 0);
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setMaxLife = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.life.max = Math.max(value, 0);
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setDefense = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.defense = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setAttack = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.attack = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setCritical = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.critical = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setSpeed = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
@@ -537,29 +723,64 @@ var Game;
                     value = 0;
                 this.exp = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setGold = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.gold = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setAmmunition = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.ammunition = value;
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setLevel = function (value) {
                 if (!Game.Helpers.Utils.isNumber(value) || !value)
                     value = 0;
                 this.level = Math.max(1, value);
             };
+            /**
+             * @return void
+             * */
             Character.prototype.setImage = function (value) { this.image = value; };
+            /**
+             * @return void
+             * */
             Character.prototype.setName = function (value) { this.name = value; };
+            /**
+             * Set Person class.
+             * Example: warrior.
+             *
+             * @return void
+             * */
             Character.prototype.setClass = function (value) { this._class = value; };
+            /**
+             * Set gender to this Person.
+             * Example: Male
+             *
+             * @return void
+             * */
             Character.prototype.setGender = function (value) { this.gender = value; };
+            /**
+             * @return void
+             * */
             Character.prototype.setItem = function (item) {
                 this.inventory.setItem(item);
                 this.inventory.apply(this);
             };
+            /**
+             * @param {object} enemy - Enemy {Person} object
+             * @param {object} actions
+             * @return number
+             * */
             Character.prototype.attackTo = function (enemy, actions) {
                 var _this = this;
                 var fn = {
@@ -572,6 +793,7 @@ var Game;
                 if (!Game.Helpers.Utils.isObject(actions))
                     actions = {};
                 if (!Game.Helpers.Utils.isEmptyObject(actions)) {
+                    //if (Helpers.isNumber(actions.combo))
                     if (Game.Helpers.Utils.isFunction(actions.onKill))
                         fn.onKill = actions.onKill;
                     if (Game.Helpers.Utils.isFunction(actions.onHit))
@@ -611,6 +833,7 @@ var Game;
                     else {
                         fn.onMiss.call(enemy, finalAttack);
                     }
+                    //
                     return {
                         then: function (callback) {
                             if (Game.Helpers.Utils.isFunction(callback))
@@ -624,75 +847,226 @@ var Game;
         Character_1.Character = Character;
     })(Character = Game.Character || (Game.Character = {}));
 })(Game || (Game = {}));
+///<reference path='../Helpers/Utils.ts'/>
 var Game;
+///<reference path='../Helpers/Utils.ts'/>
 (function (Game) {
     var Scenario;
-    (function (Scenario_1) {
-        var Scenario = (function () {
-            function Scenario(key, profile) {
-                this.profiles = {};
-                if (key && profile)
-                    this.create(key, profile);
+    (function (Scenario) {
+        var Location = /** @class */ (function () {
+            function Location(options) {
+                this.icons = {
+                    "default": ''
+                };
+                if ('name' in options)
+                    this.name = options.name;
+                if ('x' in options)
+                    this.x = options.x;
+                if ('y' in options)
+                    this.y = options.y;
             }
-            Scenario.prototype.get = function (key) {
-                if (!(key in this.profiles))
-                    return null;
-                return this.profiles[key];
-            };
-            Scenario.prototype.create = function (key, profile) {
-                if (key in this.profiles)
-                    return false;
-                this.profiles[key] = profile;
-                return true;
-            };
-            Scenario.prototype.update = function (key, profile) {
-                if (!(key in this.profiles))
-                    return false;
-                this.profiles[key] = profile;
-                return true;
-            };
-            Scenario.prototype.rendomize = function () {
-                return {
+            return Location;
+        }());
+        Scenario.Location = Location;
+    })(Scenario = Game.Scenario || (Game.Scenario = {}));
+})(Game || (Game = {}));
+///<reference path='../Helpers/Utils.ts'/>
+var Game;
+///<reference path='../Helpers/Utils.ts'/>
+(function (Game) {
+    var Scenario;
+    (function (Scenario) {
+        var Climate = /** @class */ (function () {
+            function Climate() {
+                this.generate(true);
+            }
+            Climate.prototype.generate = function (update) {
+                var climate = {
                     humidity: Game.Helpers.Utils.randomArbitrary(0, 100),
                     precipitation: Game.Helpers.Utils.randomArbitrary(0, 100),
                     pressure: Game.Helpers.Utils.randomArbitrary(0, 100),
                     temperature: Game.Helpers.Utils.randomArbitrary(0, 100)
                 };
+                if (update === true) {
+                    this.humidity = climate.humidity;
+                    this.precipitation = climate.precipitation;
+                    this.pressure = climate.pressure;
+                    this.temperature = climate.temperature;
+                }
+                return climate;
             };
-            Scenario.prototype.randomizeProfile = function (key, percentage, update) {
+            Climate.prototype.randomize = function (percentage, update) {
                 if (typeof percentage !== "number") {
                     percentage = Number(percentage) || 20;
                 }
-                var profile = this.get(key);
-                if (!profile)
-                    return null;
-                profile.temperature = Game.Helpers.Utils.randomBetweenPercentageOf(profile.temperature, percentage);
-                profile.pressure = Game.Helpers.Utils.randomBetweenPercentageOf(profile.pressure, percentage);
-                profile.humidity = Game.Helpers.Utils.randomBetweenPercentageOf(profile.humidity, percentage);
-                profile.precipitation = Game.Helpers.Utils.randomBetweenPercentageOf(profile.precipitation, percentage);
+                var climate = {
+                    humidity: this.humidity,
+                    precipitation: this.precipitation,
+                    pressure: this.pressure,
+                    temperature: this.temperature
+                };
+                climate.temperature = Game.Helpers.Utils.randomBetweenPercentageOf(climate.temperature, percentage);
+                climate.pressure = Game.Helpers.Utils.randomBetweenPercentageOf(climate.pressure, percentage);
+                climate.humidity = Game.Helpers.Utils.randomBetweenPercentageOf(climate.humidity, percentage);
+                climate.precipitation = Game.Helpers.Utils.randomBetweenPercentageOf(climate.precipitation, percentage);
                 if (update === true) {
-                    this.update(key, profile);
+                    this.humidity = climate.humidity;
+                    this.precipitation = climate.precipitation;
+                    this.pressure = climate.pressure;
+                    this.temperature = climate.temperature;
                 }
-                return profile;
+                return climate;
+            };
+            return Climate;
+        }());
+        Scenario.Climate = Climate;
+    })(Scenario = Game.Scenario || (Game.Scenario = {}));
+})(Game || (Game = {}));
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='Location.ts'/>
+///<reference path='Climate.ts'/>
+var Game;
+///<reference path='../Helpers/Utils.ts'/>
+///<reference path='Location.ts'/>
+///<reference path='Climate.ts'/>
+(function (Game) {
+    var Scenario;
+    (function (Scenario_1) {
+        var Utils = Game.Helpers.Utils;
+        var Scenario = /** @class */ (function () {
+            function Scenario(width, height) {
+                this.spaces = [];
+                if (typeof width === "number") {
+                    this.width = width;
+                    if (typeof height !== "number") {
+                        this.height = width;
+                    }
+                    else {
+                        this.height = height;
+                    }
+                    this.process(width, height);
+                }
+            }
+            Scenario.prototype.process = function (width, height) {
+                for (var row = 0; row < height; row++) {
+                    var cells = [];
+                    for (var col = 0; col < width; col++) {
+                        var locations = [];
+                        for (var l = 0; l < Math.random() + 2; l++) {
+                            locations.push(new Scenario_1.Location({
+                                name: "Location " + row + col + l,
+                                x: Utils.randomArbitrary(0, 35),
+                                y: Utils.randomArbitrary(0, 35)
+                            }));
+                        }
+                        cells.push({
+                            name: null,
+                            description: null,
+                            deleted: false,
+                            x: row,
+                            y: col,
+                            key: (row + "_" + col),
+                            climate: new Scenario_1.Climate(),
+                            locations: locations
+                        });
+                    }
+                    this.spaces.push(cells);
+                }
+            };
+            Scenario.prototype.fetch = function () {
+                return this.spaces;
             };
             return Scenario;
         }());
         Scenario_1.Scenario = Scenario;
     })(Scenario = Game.Scenario || (Game.Scenario = {}));
 })(Game || (Game = {}));
+///<reference path='Character/Character.ts'/>
+///<reference path='Scenario/Scenario.ts'/>
 var Character = Game.Character.Character;
 var Scenario = Game.Scenario.Scenario;
-var scenarios = new Scenario();
-scenarios.create("casa", {
-    precipitation: 30,
-    humidity: 10,
-    temperature: 26,
-    pressure: 15
-});
-var scenario = scenarios.get("casa");
-console.log("Ambiental #" + i, scenario);
-for (var i = 0; i < 10; i++) {
-    scenarios.randomizeProfile("casa", 30, true);
-    console.log("Ambiental #" + (i + 1), scenario);
+/*
+let names = [
+    "John", "Paul", "Francis", "Xavier", "Ali"
+];
+let characters = [];
+for (let name in names) {
+    characters.push(new Character({
+        name : names[name],
+        gender : "male",
+        _class : "y",
+        life : {
+            max : 100,
+            current : 100
+        }
+    }));
+}
+*/
+var max = 20;
+var scenario = new Scenario(max, max);
+var table = scenario.fetch();
+var map = document.getElementById("map");
+map.style.width = (42.2 * max) + "px";
+map.style.height = (44 * max) + "px";
+for (var row in table) {
+    var rowElement = document.createElement("div");
+    rowElement.style.display = "block";
+    rowElement.style.border = "1px solid red";
+    rowElement.style.overflow = "auto";
+    rowElement.style.margin = "0";
+    rowElement.style.padding = "0";
+    rowElement.style.position = "relative";
+    var _loop_1 = function (col) {
+        var item = table[row][col];
+        console.log("item", item);
+        var cell = document.createElement("div");
+        cell.style.display = "block";
+        cell.style.border = "1px solid black";
+        cell.style.width = "40px";
+        cell.style.height = "40px";
+        cell.style.cssFloat = "left";
+        cell.style.position = "relative";
+        if (item.deleted)
+            cell.style.opacity = "0.4";
+        cell.id = item.key;
+        cell.onclick = function (e) {
+            alert([
+                "Nombre             :" + item.name,
+                "Key                :" + item.key,
+                "X                  :" + item.x,
+                "Y                  :" + item.y,
+                "Eliminado          :" + (item.deleted ? 'si' : 'no'),
+                "CLIMA:",
+                "Presion atmosferica:" + item.climate.pressure,
+                "Presipitaciones    :" + item.climate.precipitation,
+                "Temperatura        :" + item.climate.temperature,
+                "Humedad            :" + item.climate.humidity
+            ].join("\n"));
+        };
+        var _loop_2 = function (location_1) {
+            var loc = document.createElement("div");
+            loc.style.position = "absolute";
+            loc.style.left = location_1.x.toString();
+            loc.style.top = location_1.y.toString();
+            loc.style.width = "5px";
+            loc.style.height = "5px";
+            loc.style.display = "block";
+            loc.style.border = "black";
+            loc.style.backgroundColor = "red";
+            loc.title = location_1.name;
+            loc.onclick = function () { return alert(["x:" + location_1.x.toString(), "y:" + location_1.y.toString()].join("\n")); };
+            cell.appendChild(loc);
+        };
+        for (var _i = 0, _a = item.locations; _i < _a.length; _i++) {
+            var location_1 = _a[_i];
+            _loop_2(location_1);
+        }
+        rowElement.appendChild(cell);
+    };
+    for (var col in table[row]) {
+        _loop_1(col);
+    }
+    console.log("map", map);
+    map.appendChild(rowElement);
 }
 //# sourceMappingURL=build.js.map

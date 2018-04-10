@@ -1,65 +1,71 @@
 ///<reference path='../Helpers/Utils.ts'/>
+///<reference path='Location.ts'/>
+///<reference path='Climate.ts'/>
 
 namespace Game.Scenario {
-    export interface IScenarioProfile {
-        precipitation:number;
-        temperature:number;
-        pressure:number;
-        humidity:number;
+    import Utils = Game.Helpers.Utils;
+
+    export interface IScenarioSpace {
+        name : string
+        climate : any
+        key : string
+        description : string,
+        deleted ?: boolean,
+        x: number,
+        y:number,
+        locations: Location[]
     }
     export class Scenario {
-        private precipitation:number;
-        private temperature:number;
-        private pressure:number;
-        private humidity:number;
+        private width: number;
+        private height: number;
+        private spaces  : Array<IScenarioSpace[]> = [];
 
-        private profiles : {
-            [key : string] : IScenarioProfile
-        } = {};
-
-        constructor (key?:string, profile?:IScenarioProfile) {
-            if (key && profile) this.create(key, profile);
-        }
-
-        public get (key : string):IScenarioProfile {
-            if (!(key in this.profiles)) return null;
-            return this.profiles[key];
-        }
-        public create (key:string, profile:IScenarioProfile):boolean {
-            if (key in this.profiles) return false;
-            this.profiles[key] = profile;
-            return true;
-        }
-        public update (key:string, profile:IScenarioProfile):boolean {
-            if (!(key in this.profiles)) return false;
-            this.profiles[key] = profile;
-            return true;
-        }
-
-        public rendomize ():IScenarioProfile {
-            return {
-                humidity: Helpers.Utils.randomArbitrary(0, 100),
-                precipitation: Helpers.Utils.randomArbitrary(0, 100),
-                pressure:Helpers.Utils.randomArbitrary(0, 100),
-                temperature: Helpers.Utils.randomArbitrary(0, 100)
+        public constructor (width : number, height?: number) {
+            if (typeof width === "number") {
+                this.width = width;
+                if (typeof height !== "number") {
+                    this.height = width;
+                }
+                else {
+                    this.height = height;
+                }
+                this.process(width, height);
             }
         }
-        public randomizeProfile (key:string, percentage?:number, update?:boolean):IScenarioProfile {
-            if (typeof percentage !== "number") {
-                percentage = Number(percentage) || 20;
-            }
 
-            let profile:IScenarioProfile = this.get(key);
-            if (!profile) return null;
-            profile.temperature = Helpers.Utils.randomBetweenPercentageOf(profile.temperature, percentage);
-            profile.pressure = Helpers.Utils.randomBetweenPercentageOf(profile.pressure, percentage);
-            profile.humidity = Helpers.Utils.randomBetweenPercentageOf(profile.humidity, percentage);
-            profile.precipitation = Helpers.Utils.randomBetweenPercentageOf(profile.precipitation, percentage);
+        public process (width : number, height : number) {
 
-            if (update === true) {
-                this.update(key, profile);
+            for (let row = 0; row < height; row++) {
+                let cells : IScenarioSpace[] = [];
+                for (let col = 0; col < width; col++) {
+                    let locations = [];
+                    for (let l = 0; l < Math.random()+2; l++) {
+                        locations.push(new Location({
+                            name : "Location " + row + col + l,
+                            x : Utils.randomArbitrary(0, 35),
+                            y : Utils.randomArbitrary(0, 35)
+                        }));
+                    }
+                    cells.push(<IScenarioSpace>{
+                        name : null,
+                        description: null,
+                        deleted : false,
+                        x : row,
+                        y : col,
+                        key : (row+"_"+col),
+                        climate : new Climate(),
+                        locations : locations
+                    });
+                }
+                this.spaces.push(cells);
             }
-            return profile;
+        }
+
+
+
+
+        public fetch ():Array<IScenarioSpace[]> {
+            return this.spaces;
         }
     }
 }
