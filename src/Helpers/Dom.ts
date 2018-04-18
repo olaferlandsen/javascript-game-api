@@ -1,3 +1,5 @@
+import {Utils} from "./Utils";
+
 export interface IDomProperties {
     [key : string] : any;
 }
@@ -14,24 +16,25 @@ export class Dom {
     public static classes = Dom.classList;
     public static append = Dom.appendTo;
     public static prepend = Dom.preprendTo;
-
+    public static replacement : { [key : string] : string} = {
+        "className" : "class"
+    };
     public static on = Dom.bind;
-    public static registerElement = Dom.createTag;
 
-
-    public static createTag (tagName : string, properties ? : IDomProperties):Element {
-        let element : Element = (document as any).registerElement(tagName, {
-            prototype : Object.create(HTMLElement.prototype)
-        });
-        if (typeof properties === "object" && !Array.isArray(properties) && properties !== null) {
-            for (let property in properties) element[property] = properties[property];
-        }
-        return element;
-    }
     public static createElement (tagName: string, properties?: IDomProperties ):Element {
         let element : Element = document.createElement(tagName);
         if (typeof properties === "object" && !Array.isArray(properties) && properties !== null) {
-            for (let property in properties) element[property] = properties[property];
+            for (let property in properties) {
+                let value : any = properties[property];
+                property = (property.toLowerCase() === "classname") ? "class": property;
+                if (Array.isArray(value)) value = value.join(" ");
+                if (/^data-*/i.test(property)) {
+                    Dom.data(element , property, value);
+                }
+                else {
+                    element.setAttribute(property, value);
+                }
+            }
         }
         return element;
     }
@@ -91,9 +94,34 @@ export class Dom {
         });
     }
 
-    public static attributes() {}
+    public static attributes(selector: string|Element) {
+    }
     public static removeAttribute() {}
     public static addAtrribute() {}
+
+
+    public static data (selector: Element|string, key ?: string, value?: string):any {
+        let dataset : any = null;
+        let element : Element = selector as Element;
+        if (selector instanceof Element) {
+            dataset = (selector as HTMLElement).dataset;
+        } else {
+            element = Dom.find(selector as string);
+        }
+
+        if (element) dataset = (element as HTMLElement).dataset;
+        if (typeof key !== "undefined" && dataset) {
+            key = key.replace(/^data-*/i, '');
+            if (typeof value !== "undefined") {
+                (selector as HTMLElement).dataset[Utils.toCamelCase(key)] = value;
+                return;
+            }
+            else return dataset[Utils.toCamelCase(key)];
+        }
+        return dataset;
+    }
+
+
 
     public static moveTo() {}
 
@@ -108,6 +136,30 @@ export class Dom {
         event = String(event).replace(/\s+/,'').trim().toLowerCase();
         if (event in alternatives) event = alternatives[event];
         Dom.find(selector as string, e => e.addEventListener(event, callback));
+    }
+
+
+    public static parse (html:string):HTMLElement {
+
+        let element = Dom.createElement("layer");
+        element.insertAdjacentHTML("beforeend", html);
+        return element as HTMLElement;
+        /*
+        if (typeof DOMParser !== "undefined") {
+            return (new DOMParser()).parseFromString(text, "text/html");
+        }
+        else {
+            let frame = document.createElement('iframe') as HTMLIFrameElement;
+            frame.style.display = 'none';
+            document.body.appendChild(frame);
+            (frame.contentDocument as Document).open();
+            (frame.contentDocument as Document).write(text);
+            (frame.contentDocument as Document).close();
+            let el = (frame.contentDocument as Document).body.firstChild;
+            document.body.removeChild(frame);
+            return el as Element;
+        }
+        */
     }
 
 }

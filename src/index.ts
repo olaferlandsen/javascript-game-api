@@ -1,2 +1,3 @@
 import {Root} from "./Core/Root";
-Root.run();
+let x = new Root();
+

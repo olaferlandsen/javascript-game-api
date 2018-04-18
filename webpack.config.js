@@ -1,24 +1,40 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
-    entry: {
-        main: './src'
+    mode : 'development',
+    entry: './src/index.ts',
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            },
+            {
+                test: /\.html$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[path][name].[ext]',
+                            publicPath:'/'
+                        },
+                    }
+
+                ],
+                include: path.join(__dirname, 'src'),
+                exclude: [
+                    path.join(__dirname, 'index.html'),
+                    path.join(__dirname, 'appbundle', 'index.html')
+                ],
+            },
+        ]
     },
     resolve: {
-        extensions: ["", ".webpack.js", ".web.js", ".js", ".ts"]
+        extensions: [ ".tsx", ".ts", ".js", ".html", ".sass", ".less", ".css", ".scss" ]
     },
     output: {
-        publicPath: "/js/",
-        path: path.join(__dirname, '/dist/js/'),
-        filename: '[name].build.js'
-    },
-    module: {
-        loaders: [
-            {
-                test: /\.ts$/,
-                loader: 'ts-loader'
-            }
-        ]
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
     }
 };

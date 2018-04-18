@@ -1,6 +1,10 @@
 export interface IPage {
     [key: string]: any;
 
+    //template : string;
+
+    tagName? : string;
+
     viewDidLoad ? (): void;
     viewWillLoad ? (): void;
 

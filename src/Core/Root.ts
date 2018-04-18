@@ -1,30 +1,50 @@
-import {Debug} from "../Annotations/Debug";
 import {IPage} from "./Interface/Page";
 import {DashboardPage} from "../Public/Pages/Dashboard/Dashboard";
 import {Dom} from "../Helpers/Dom";
+import {Page} from "../Services/Metadata/Page";
+import {MenuPage} from "../Public/Pages/Menu/Menu";
+import {MapPage} from "../Public/Pages/Map/Map";
+import {Navigation} from "./Navigation";
+import {File} from "../Helpers/File";
+import {Scope} from "./Scope";
 
-@Debug
 export class Root {
-    @Debug
     protected id : string = "root";
-    @Debug
     protected tagName : string = "game";
-    @Debug
-    protected pages : IPage[] = [];
-    @Debug
-    protected rootPage :IPage = DashboardPage;
+
+    protected components = (new Navigation([
+        DashboardPage,
+        MenuPage,
+        MapPage
+    ]));
 
     public constructor() {
         Dom.delete("#" + this.id); // remove if exist's
-        Dom.find("body", e => e.appendChild(Dom.createTag(this.tagName, {
-            id : this.id
-        })));
+        Dom.find("body", e => e.appendChild(Dom.createElement(this.tagName, {id : this.id})));
+        // generate component
+        for (let component of this.components.list()) {
+            Dom.find(this.tagName, e => {
+                let name = component.replace("Page", "");
+                let element = Dom.createElement(component
+                    .replace(/\.?([A-Z]+)/g, (x, y:string) => "-" + y.toLowerCase())
+                    .replace(/^-/, "") +"-component", {
+                    className : ["game-panel"],
+                    template : name + ".html",
+                    component : component
+                });
+                File.read("./dist/Public/Pages/" + name + "/" + name + ".html").toPromise().then((html) => {
+                    html = Dom.parse(html);
 
-        // generate pages
-        for (let page of this.pages) Dom.find(this.tagName, e => e.appendChild(Dom.createTag(page.name)));
-    }
+                    let initialized = this.components.initilize(component, html);
 
-    public static run ():Root {
-        return new Root();
+
+
+                    element.appendChild( html );
+                }, (error:any) => {
+                    console.log("error", error)
+                });
+                e.appendChild(element)
+            });
+        }
     }
 }

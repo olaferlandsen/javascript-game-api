@@ -1,16 +1,41 @@
 
-import {Page, Debug} from "./../../../Annotations/Annotations";
+import {Page} from "../../../Annotations/Page";
 import {Scope, Navigation, IPage} from "./../../../Core/Core";
 
 @Page
-@Debug
 export class DashboardPage implements IPage {
-    public constructor (public scope : Scope, public navigation: Navigation) {
+    public namespace : string = "DashboardPage";
+
+    public static template : string = "Dashboard.html";
+
+    public constructor (public scope : Scope, public navigation : Navigation) {
+        console.log("DashboardPage")
+
+        console.log("scope:", this.scope)
+        console.log("navigation:", this.navigation)
+
+
+        console.log("getCurrentIndex:", this.navigation.getCurrentIndex());
+        console.log("getNextIndex:", this.navigation.getNextIndex());
+
+
+        this.navigation.goToNext();
+        console.log("goToNext:", this.navigation.getCurrentIndex());
 
     }
-
-    @Debug
+    public viewDidEnter () {
+        console.log("viewDidEnter")
+    }
     public viewDidLoad() {
-        this.scope.name = "";
+        console.log("viewDidLoad")
     }
+
+    public viewWillEnter () {
+        console.log("viewWillEnter")
+
+    }
+    public viewWillLoad () {
+        console.log("viewDidEnter")
+    }
+
 }

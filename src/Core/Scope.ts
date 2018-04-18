@@ -1,7 +1,10 @@
 export class Scope {
     [key : string] : any;
-
-    protected cound ():number {
+    protected count ():number {
         return Object.keys(this).length;
+    }
+
+    public constructor (public element : Element) {
+
     }
 }
